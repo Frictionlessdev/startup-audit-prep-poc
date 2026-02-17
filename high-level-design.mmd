@@ -1,0 +1,53 @@
+---
+config:
+  layout: "dagre"
+---
+flowchart LR
+  subgraph Integrations["Integrations"]
+    GITHUB[("GitHub Repos")]
+    OKTA[("Okta IAM")]
+    AWS[("AWS IAM/CloudWatch")]
+  end
+
+  subgraph Backend["POC Backend"]
+    API["Express API Gateway<br>REST/GraphQL"]
+    MAPPER["Control Mapper<br>Rule/ML Matching"]
+    DB[("MongoDB<br>Evidence Store")]
+    ENGINE["Evidence Engine<br>Cron Scanner"]
+    AI["OpenAI API<br>Gap Analysis"]
+  end
+
+  subgraph Frontend["Frontend"]
+    DASH["React Dashboard<br>Controls Table/Charts"]
+  end
+
+  subgraph Output["Output"]
+    REPORT["PDF Report Generator"]
+  end
+
+  AWS -- "AWS SDK<br>API Keys" --> API
+  OKTA -- "Okta API<br>OAuth" --> API
+  GITHUB -- "GitHub API<br>Tokens" --> API
+
+  API -- "HTTP POST JSON" --> MAPPER
+  MAPPER -- "Query/Update" --> DB
+  ENGINE -- "Scheduled Scan" --> DB
+  ENGINE -- "Prompt JSON" --> AI
+  AI -- "Response Fixes" --> ENGINE
+
+  API -- "Data Fetch" --> DB
+  DB -- "Evidence Query" --> REPORT
+  API -- "Trigger Export" --> REPORT
+
+  DASH <-- "GraphQL/REST<br>WebSocket" --> API
+
+  %% Styling
+  classDef integration fill:#e1f5f
+  classDef backend fill:#f3e5f
+  classDef frontend fill:#e8f5e
+  classDef output fill:#fff3e
+
+  class AWS,OKTA,GITHUB integration
+  class API,MAPPER,ENGINE,DB,AI backend
+  class DASH frontend
+  class REPORT output
